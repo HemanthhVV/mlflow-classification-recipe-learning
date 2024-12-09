@@ -2,7 +2,7 @@
 # FIXME::REQUIRED: set an MLflow experiment name to track recipe executions and artifacts.
 #
 experiment:
-  name: "Random_forest"
+  name: "Custom_Function_Stacking"
   tracking_uri: "sqlite:///metadata/mlflow/mlruns.db"
   artifact_location: "./metadata/mlflow/mlartifacts"
 model_registry:
@@ -20,7 +20,7 @@ INGEST_CONFIG:
   #                  formats are: parquet, spark_sql, delta.
   using: "parquet"
   # FIXME::OPTIONAL: Specify the training and evaluation data location.
-  location: "/home/hemanthhvelliyangirie/mlflow-classification-recipe-learning/data/diabete.parquet"
+  location: "/home/hemanthhvelliyangirie/mlflow-classification-recipe-learning/data/diabetes.parquet"
 
 # INGEST_SCORING_CONFIG:
 #   For different options please read: https://github.com/mlflow/recipes-classification-template#batch-scoring

@@ -1,0 +1,100 @@
+  train:
+    using: "custom"
+    estimator_method: estimator_fn
+
+    # Random Forest
+    estimator_params:
+      n_estimators: 100
+      max_depth: 10
+      min_samples_split: 2
+      random_state: 42
+      model_name: 'RandomForest'
+
+    # XGBoost
+    # estimator_params:
+    #   n_estimators: 100        # Number of boosting rounds
+    #   max_depth: 10            # Maximum depth of a tree
+    #   learning_rate: 0.1       # Step size shrinkage for updates
+    #   subsample: 0.8           # Fraction of samples used for training each tree
+    #   colsample_bytree: 0.8    # Fraction of features used per tree
+    #   min_child_weight: 1      # Minimum sum of instance weights needed in a child
+    #   gamma: 0.0               # Minimum loss reduction required for a split
+    #   random_state: 42         # Random seed for reproducibility
+    #   objective: 'binary:logistic'  # Objective function for binary classification
+    #   eval_metric: 'logloss'   # Evaluation metric
+    #   model_name: 'XGBoost'    # Name of the model
+
+
+    # Decision Tree
+    # estimator_params:
+    #   criterion: 'gini'
+    #   max_depth: 10
+    #   min_samples_split: 2
+    #   min_samples_leaf: 1
+    #   random_state: 42
+    #   model_name: 'DecisionTree'
+
+
+
+  train:
+    using: "automl/flaml"
+    time_budget_secs: 30
+    automl:
+      estimator_list: ["rf"]  # Only use Random Forest
+      task: "classification"  # Specify task type
+      metric: "f1"  # Optimize for F1-score
+      rf_params:  # Optional: Random Forest hyperparameters
+        n_estimators: 100
+        max_depth: 10
+        min_samples_split: 2
+        random_state: 42
+
+  def estimator_fn(estimator_params: Dict[str, Any] = None) -> Any:
+    """
+    Returns an *unfitted* estimator that defines ``fit()`` and ``predict()`` methods.
+    The estimator's input and output signatures should be compatible with scikit-learn
+    estimators.
+    """
+    print("+==============================================> ",estimator_params['model_name'])
+
+    ## If no model name or no parameter given ,
+    ## Model will run the XGBoost default
+    if estimator_params is None:
+      estimator_params = {
+          'n_estimators': 400,           # Number of boosting rounds
+          'max_depth': 6,                # Maximum depth of a tree
+          'learning_rate': 0.1,          # Boosting learning rate (eta)
+          'subsample': 0.8,              # Subsample ratio of the training data
+          'colsample_bytree': 0.8,       # Subsample ratio of columns when constructing each tree
+          'min_child_weight': 1,         # Minimum sum of instance weight (hessian) needed in a child
+          'gamma': 0,                    # Minimum loss reduction required to make a further partition on a leaf node
+          'reg_alpha': 0,                # L1 regularization term on weights
+          'reg_lambda': 1,               # L2 regularization term on weights
+          'objective': 'binary:logistic',# Specify learning task and corresponding objective ('binary:logistic' for classification)
+          'verbosity': 1,                # Verbosity of printing messages during training
+          'booster': 'gbtree'            # Specify which booster to use ('gbtree', 'gblinear', 'dart')
+      }
+    model_name = None
+    ## Default model creation
+    if estimator_params['model_name']:
+      model_name = estimator_params['model_name']
+      del(estimator_params['model_name'])
+    else:
+      model = xgboost.XGBClassifier(**estimator_params)
+
+    if model_name == 'RandomForest':
+       model = RandomForestClassifier(**estimator_params)
+
+    if model_name == 'XGBoost':
+       model = xgboost.XGBClassifier(**estimator_params)
+
+    if model_name == 'LightGBM':
+       model = lgbm.LGBMClassifier(**estimator_params)
+
+    if model_name == 'DecisionTree':
+       model = DecisionTreeClassifier(**estimator_params)
+
+    try:
+      return model
+    except:
+      raise NotImplementedError

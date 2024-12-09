@@ -43,12 +43,81 @@ steps:
     #  FIXME::OPTIONAL: Specifies the method that defines an sklearn-compatible transformer, which
     #                   applies input feature transformation during model training and inference.
     transformer_method: transformer_fn
+
+  ## 1
+  # train:
+  #   #
+  #   # FIXME::REQUIRED: Specifies the method to use for training. Options are "automl/flaml" for
+  #   #                  AutoML training or "custom" for user-defined estimators.
+  #   using: "custom"
+  #   estimator_method: estimator_fn #####
+
+  ## 2
+  # train:
+  #   using: "custom"
+  #   estimator_method: train_with_multiple_algorithms
+  #   estimator_params:
+  #     run_only_model: "RandomForest"  # Specify the model to run (e.g., RandomForest, LogisticRegression, SVC)
+  #     hyperparameters:
+  #       RandomForest:
+  #         n_estimators: [100, 200]
+  #         max_depth: [None, 10, 20]
+  #         min_samples_split: [2, 5]
+  #       LogisticRegression:
+  #         C: [0.1, 1, 10]
+  #         solver: ["liblinear"]
+  #       SVC:
+  #         C: [0.1, 1, 10]
+  #         kernel: ["linear", "rbf"]
+  #     selection_criteria:
+  #       metric: "f1_score"
+  #       threshold: 0.7
+  #     store_best_model:
+  #       algorithm: "RandomForest"
+
+  ## 3
+  # train:
+  #   using: "automl/flaml"
+  #   time_budget_secs: 100
+
+
   train:
-    #
-    # FIXME::REQUIRED: Specifies the method to use for training. Options are "automl/flaml" for
-    #                  AutoML training or "custom" for user-defined estimators.
     using: "custom"
     estimator_method: estimator_fn
+
+    # Random Forest
+    # estimator_params:
+    #   n_estimators: 100
+    #   max_depth: 10
+    #   min_samples_split: 2
+    #   random_state: 42
+    #   model_name: 'RandomForest'
+
+    # XGBoost
+    # estimator_params:
+    #   n_estimators: 10
+    #   max_depth: 0
+    #   learning_rate: 0.1
+    #   subsample: 0.8
+    #   colsample_bytree: 0.8
+    #   min_child_weight: 1
+    #   gamma: 0.0
+    #   random_state: 0
+    #   objective: 'binary:logistic'
+    #   eval_metric: 'logloss'
+    #   model_name: 'XGBoost'
+
+
+    # Decision Tree
+    # estimator_params:
+    #   criterion: 'gini'
+    #   max_depth: 10
+    #   min_samples_split: 2
+    #   min_samples_leaf: 1
+    #   random_state: 42
+    #   model_name: 'DecisionTree'
+
+
   evaluate:
     #
     # FIXME::OPTIONAL: Sets performance thresholds that a trained model must meet in order to be
@@ -56,11 +125,11 @@ steps:
     #
     validation_criteria:
       - metric: f1_score
-        threshold: 0.7
+        threshold: 0.99
   register:
     # Indicates whether or not a model that fails to meet performance thresholds should still
     # be registered to the MLflow Model Registry
-    allow_non_validated_model: true
+    allow_non_validated_model: True
   # FIXME::OPTIONAL: Specify the dataset to use for batch scoring. All params serve the same function
   #                  as in `data`
   # ingest_scoring: {{INGEST_SCORING_CONFIG}}
